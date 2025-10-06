@@ -1,16 +1,9 @@
-//
-//  TestView.swift
-//  SeedlingTest
-//
-//  Created by Vincenzo Gerelli on 29/09/25.
-//
-
 import SwiftUI
 import SwiftData
 
 struct TestView: View {
     @ObservedObject var store = DataStore.shared
-    @Environment(\.modelContext) private var context
+    @Environment(\.modelContext) var context
     
     var learner: Learner
     @State private var currentIndex = 0
@@ -20,20 +13,21 @@ struct TestView: View {
         NavigationStack {
             VStack {
                 if currentIndex < store.questions.count {
-                    QuestionView(question: store.questions[currentIndex]) { response in
-                        store.recordAnswer(
-                            question: store.questions[currentIndex],
-                            response: response,
-                            learner: learner,
-                            context: context
-                        )
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            currentIndex += 1
-                            if currentIndex >= store.questions.count {
-                                navigateToResults = true
-                            }
+                    QuestionView(
+                        question: store.questions[currentIndex],
+                        onConfirm: { response in
+                            store.recordAnswer(
+                                question: store.questions[currentIndex],
+                                response: response,
+                                learner: learner,
+                                context: context
+                            )
+                        },
+                        onNext: {
+                            goToNextQuestion()
                         }
-                    }
+                    )
+                    .id(store.questions[currentIndex].id)
                 }
             }
             .navigationDestination(isPresented: $navigateToResults) {
@@ -41,6 +35,13 @@ struct TestView: View {
             }
         }
     }
+    
+    func goToNextQuestion() {
+        let nextIndex = currentIndex + 1
+        if nextIndex < store.questions.count {
+            currentIndex = nextIndex
+        } else {
+            navigateToResults = true
+        }
+    }
 }
-
-
