@@ -7,19 +7,24 @@
 
 
 import SwiftData
+import Foundation
 
 @Model
 class Answer {
-    var questionText: String
+    var id: UUID
     var response: String
     var isCorrect: Bool
-    var explanation: String
-    
-    init(questionText: String, response: String, isCorrect: Bool, explanation: String) {
-        self.questionText = questionText
+
+    @Relationship var learner: Learner
+    @Relationship var question: Question
+
+    init(response: String, isCorrect: Bool, learner: Learner, question: Question) {
+        self.id = UUID()
         self.response = response
         self.isCorrect = isCorrect
-        self.explanation = explanation
+        self.learner = learner
+        self.question = question
     }
 }
+
 

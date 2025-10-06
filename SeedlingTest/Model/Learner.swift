@@ -5,26 +5,25 @@
 //  Created by Vincenzo Gerelli on 29/09/25.
 //
 
-
-import SwiftData
 import Foundation
+import SwiftData
 
 @Model
 class Learner {
-    @Attribute(.unique) var learnerID: String
+    var id: UUID
     var age: Int
     var gender: String
     var school: String
     var region: String
-    @Relationship(deleteRule: .cascade) var answers: [Answer] = []
+
+    @Relationship(deleteRule: .cascade) var test: Test? // ogni Learner fa un solo Test
+    @Relationship(deleteRule: .cascade) var answers: [Answer] = [] // risposte del Learner
 
     init(age: Int, gender: String, school: String, region: String) {
-        self.learnerID = UUID().uuidString
+        self.id = UUID()
         self.age = age
         self.gender = gender
         self.school = school
         self.region = region
     }
 }
-
-

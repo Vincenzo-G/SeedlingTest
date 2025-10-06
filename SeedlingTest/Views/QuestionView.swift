@@ -5,16 +5,8 @@ struct QuestionView: View {
     var onConfirm: (String) -> Void
     var onNext: () -> Void
 
-    public init(question: Question, onConfirm: @escaping (String) -> Void, onNext: @escaping () -> Void) {
-        self.question = question
-        self.onConfirm = onConfirm
-        self.onNext = onNext
-    }
-
-    // State for all question types
     @State private var selectedOption: String?
     @State private var numericResponse: String = ""
-    
     @State private var isConfirmed = false
     @State private var feedback: String?
 
@@ -24,18 +16,17 @@ struct QuestionView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text(question.text).font(.headline)
+            Text(question.text)
+                .font(.headline)
+                .multilineTextAlignment(.center)
 
-            // Answer area
             VStack(spacing: 15) {
                 switch question.type {
                 case .multipleChoice, .oddOneOut:
-                    ForEach(question.options ?? [], id: \.self) {
-                        option in
+                    ForEach(question.options ?? [], id: \.self) { option in
                         Button(action: {
-                            if !isConfirmed {
-                                selectedOption = option
-                            }
+                            guard !isConfirmed else { return }
+                            selectedOption = option
                         }) {
                             Text(option)
                                 .frame(maxWidth: .infinity)
@@ -44,25 +35,26 @@ struct QuestionView: View {
                                 .foregroundColor(.primary)
                                 .cornerRadius(8)
                         }
+                        .animation(.default, value: isConfirmed)
                     }
                 case .numericInput:
                     TextField("Enter answer", text: $numericResponse)
                         .keyboardType(.numberPad)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .disabled(isConfirmed)
+                        .multilineTextAlignment(.center)
                 }
             }
 
-            // Feedback area
             if let feedback = feedback {
                 Text(feedback)
                     .foregroundColor(response.lowercased() == question.correctAnswer.lowercased() ? .green : .red)
+                    .multilineTextAlignment(.center)
                     .padding(.top)
             }
-            
+
             Spacer()
 
-            // Action button (Confirm / Next)
             Button(action: {
                 if isConfirmed {
                     onNext()
@@ -83,23 +75,20 @@ struct QuestionView: View {
     }
 
     private func buttonBackgroundColor(for option: String) -> Color {
-        guard isConfirmed else { 
-            return selectedOption == option ? Color.blue.opacity(0.3) : Color.gray.opacity(0.2)
+        guard isConfirmed == false else {
+            let isCorrect = option.lowercased() == question.correctAnswer.lowercased()
+            if option == selectedOption {
+                return isCorrect ? .green.opacity(0.5) : .red.opacity(0.5)
+            } else if isCorrect {
+                return .green.opacity(0.5)
+            }
+            return Color.gray.opacity(0.2)
         }
 
-        // After confirmation
-        let isCorrect = option.lowercased() == question.correctAnswer.lowercased()
-        if option == selectedOption {
-            return isCorrect ? .green.opacity(0.5) : .red.opacity(0.5)
-        } else if isCorrect {
-            return .green.opacity(0.5)
-        }
-        
-        return Color.gray.opacity(0.2)
+        return selectedOption == option ? Color.blue.opacity(0.3) : Color.gray.opacity(0.2)
     }
 
     private func isConfirmButtonDisabled() -> Bool {
-        // Disable confirm if no answer is provided, but never disable \'Next\' button
         !isConfirmed && response.isEmpty
     }
 

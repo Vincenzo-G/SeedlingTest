@@ -2,26 +2,27 @@
 //  CSVExporter.swift
 //  SeedlingTest
 //
-//  Created by Vincenzo Gerelli on 29/09/25.
-//
 
 import Foundation
 
 class CSVExporter {
     static func exportAll(learners: [Learner]) -> String {
-        var csv = "ID,Age,Gender,Region,Test,Score\n"
+        var csv = "ID,Age,Gender,Region,TestTitle,Programme,Score,Details\n"
         
         for learner in learners {
-            // Count correct answers
-            let total = learner.answers.count
-            let correct = learner.answers.filter { $0.isCorrect }.count
+            guard let test = learner.test else {
+                csv.append("\(learner.id),\(learner.age),\(learner.gender),\(learner.region),No Test,No Programme,0/0,\n")
+                continue
+            }
             
-            // Assuming all answers belong to the same test (e.g., "Base01")
-            //let testName = learner.answers.first?.testName ?? "Unknown"
+            let answers = learner.answers.filter { $0.question.test.id == test.id }
+            let total = answers.count
+            let correct = answers.filter { $0.isCorrect }.count
             
-            csv.append("#\(learner.learnerID),\(learner.age),\(learner.gender),\(learner.region),\(correct)/\(total)\n")
+            csv.append("\(learner.id),\(learner.age),\(learner.gender),\(learner.region),\(test.title),\(test.programme),\(correct)/\(total),\n")
         }
         
         return csv
     }
 }
+

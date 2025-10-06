@@ -9,9 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct ResultView: View {
-    @Query var learners: [Learner]   // <-- tutti i learner dal DB
+    @Query var learners: [Learner]   // tutti i learner dal DB
+    @Environment(\.modelContext) private var context
     @State private var exportedCSV = ""
     @State private var showCSV = false
+    @State private var showResetConfirmation = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -21,6 +23,11 @@ struct ResultView: View {
                 exportedCSV = CSVExporter.exportAll(learners: learners)
                 showCSV = true
             }
+            
+            Button("Reset All Data") {
+                showResetConfirmation = true
+            }
+            .foregroundColor(.red)
             
             if showCSV {
                 ScrollView {
@@ -32,6 +39,34 @@ struct ResultView: View {
             }
         }
         .padding()
+        .confirmationDialog("Are you sure you want to delete all data?", isPresented: $showResetConfirmation, titleVisibility: .visible) {
+            Button("Delete All", role: .destructive) {
+                resetAllData()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
+    
+    private func resetAllData() {
+        let learnersCopy = learners
+        
+        for learner in learnersCopy {
+            context.delete(learner)
+        }
+        
+        do {
+            try context.save()
+            exportedCSV = ""
+            showCSV = false
+        } catch {
+            print("Failed to delete all data: \(error)")
+        }
+    }
+
 }
 
+
+
+#Preview {
+    ResultView()
+}
