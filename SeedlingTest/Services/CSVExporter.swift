@@ -17,9 +17,9 @@ class CSVExporter {
             let correct = learner.answers.filter { $0.isCorrect }.count
             
             // Assuming all answers belong to the same test (e.g., "Base01")
-            let testName = learner.answers.first?.testName ?? "Unknown"
+            //let testName = learner.answers.first?.testName ?? "Unknown"
             
-            csv.append("#\(learner.learnerID),\(learner.age),\(learner.gender),\(learner.region),\(testName),\(correct)/\(total)\n")
+            csv.append("#\(learner.learnerID),\(learner.age),\(learner.gender),\(learner.region),\(correct)/\(total)\n")
         }
         
         return csv
