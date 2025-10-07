@@ -65,7 +65,7 @@ struct QuestionView: View {
                 Text(isConfirmed ? "Next" : "Confirm")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(isConfirmButtonDisabled() ? Color.gray : Color.blue)
+                    .background(isConfirmButtonDisabled() ? Color.gray : Color.orange)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
@@ -85,7 +85,7 @@ struct QuestionView: View {
             return Color.gray.opacity(0.2)
         }
 
-        return selectedOption == option ? Color.blue.opacity(0.3) : Color.gray.opacity(0.2)
+        return selectedOption == option ? Color.orange.opacity(0.3) : Color.gray.opacity(0.2)
     }
 
     private func isConfirmButtonDisabled() -> Bool {
